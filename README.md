@@ -44,4 +44,6 @@ Use the Model Hub to browse and download models directly from Hugging Face.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+AGPL-3.0 License. See [LICENSE](LICENSE) for details.
+
+This project uses SwiftPythonRuntime via a binary xcframework. The runtime is dual-licensed (AGPL-3.0 / Commercial) — the xcframework satisfies the linking requirements while keeping the demo code open source.
