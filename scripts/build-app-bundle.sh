@@ -93,13 +93,14 @@ exec "\$DIR/LlamaChatUI.bin" "\$@"
 LAUNCHER
 chmod +x "$APP_DIR/Contents/MacOS/LlamaChatUI"
 
-# Copy SPM resource bundles into Contents/Resources so Bundle.module
-# can locate them at runtime. Required by any package that embeds
-# resources (e.g. Textual/iosMath math fonts). Without this step the
-# app crashes with EXC_BREAKPOINT inside Math.FontRegistry.graphicsFont.
-mkdir -p "$APP_DIR/Contents/Resources"
+# Copy SPM resource bundles next to the binary so Bundle.module can
+# locate them at runtime. SPM's generated resource_bundle_accessor
+# searches Bundle.main.resourceURL which for a bare executable resolves
+# to the directory containing the binary (Contents/MacOS/), not
+# Contents/Resources/. Without this the app crashes with EXC_BREAKPOINT
+# inside Math.FontRegistry.graphicsFont or similar Bundle.module callers.
 find "$BUILD_DIR" -maxdepth 1 -name "*.bundle" -type d | while read -r bundle; do
-    cp -r "$bundle" "$APP_DIR/Contents/Resources/"
+    cp -r "$bundle" "$APP_DIR/Contents/MacOS/"
 done
 
 
