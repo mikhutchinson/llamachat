@@ -18,7 +18,7 @@ A native macOS chat app powered by local GGUF language models. Runs entirely on-
 - Homebrew Python 3.13: `brew install python@3.13`
 - Python packages: `pip3 install llama-cpp-python`
 - A GGUF model file (e.g. from [Hugging Face](https://huggingface.co/models?search=gguf))
-- SwiftPython commercial runtime binary (contact maintainer)
+- SwiftPython runtime (included automatically via SPM)
 
 ## Build
 
@@ -27,8 +27,7 @@ git clone https://github.com/mikhutchinson/llamachat.git
 cd llamachat
 
 export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.2
-export SWIFTPYTHON_WORKER_PATH=<path-to-SwiftPythonWorker>
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.3
 
 ./scripts/build-app-bundle.sh
 cp -R "build/Llama Chat.app" /Applications/

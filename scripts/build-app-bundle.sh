@@ -20,11 +20,17 @@ mkdir -p "$APP_DIR/Contents/MacOS"
 
 cp "$BUILD_DIR/LlamaChatUI" "$APP_DIR/Contents/MacOS/LlamaChatUI.bin"
 
-WORKER_SRC="${SWIFTPYTHON_WORKER_PATH:-$BUILD_DIR/SwiftPythonWorker}"
+WORKER_SRC="${SWIFTPYTHON_WORKER_PATH:-}"
+if [ -z "$WORKER_SRC" ] || [ ! -f "$WORKER_SRC" ]; then
+    WORKER_SRC="$(find "$PKG_DIR/.build/checkouts" -name "SwiftPythonWorker" -type f -not -path '*dSYM*' 2>/dev/null | head -1)"
+fi
+if [ -z "$WORKER_SRC" ] || [ ! -f "$WORKER_SRC" ]; then
+    WORKER_SRC="$BUILD_DIR/SwiftPythonWorker"
+fi
 if [ -f "$WORKER_SRC" ]; then
     cp "$WORKER_SRC" "$APP_DIR/Contents/MacOS/SwiftPythonWorker"
 else
-    echo "warning: SwiftPythonWorker not found at $WORKER_SRC — app will not be able to run Python"
+    echo "warning: SwiftPythonWorker not found — app will not be able to run Python"
 fi
 
 # Create launcher wrapper that sets up Python environment before exec.
