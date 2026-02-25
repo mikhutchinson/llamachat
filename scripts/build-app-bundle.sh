@@ -104,6 +104,10 @@ find "$BUILD_DIR" -maxdepth 1 -name "*.bundle" -type d | while read -r bundle; d
     cp -r "$bundle" "$APP_DIR/"
 done
 
+if [ -f "$PKG_DIR/assets/AppIcon.icns" ]; then
+    mkdir -p "$APP_DIR/Contents/Resources"
+    cp "$PKG_DIR/assets/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
+fi
 
 # Info.plist for proper .app behavior (Dock, activation, etc.)
 cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
@@ -115,6 +119,8 @@ cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
     <string>LlamaChatUI</string>
     <key>CFBundleIdentifier</key>
     <string>com.swiftpython.LlamaChatUI</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleName</key>
     <string>Llama Chat</string>
     <key>CFBundlePackageType</key>
