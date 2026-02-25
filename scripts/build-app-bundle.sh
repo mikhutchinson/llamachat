@@ -19,7 +19,13 @@ rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
 
 cp "$BUILD_DIR/LlamaChatUI" "$APP_DIR/Contents/MacOS/"
-cp "$BUILD_DIR/SwiftPythonWorker" "$APP_DIR/Contents/MacOS/"
+
+WORKER_SRC="${SWIFTPYTHON_WORKER_PATH:-$BUILD_DIR/SwiftPythonWorker}"
+if [ -f "$WORKER_SRC" ]; then
+    cp "$WORKER_SRC" "$APP_DIR/Contents/MacOS/SwiftPythonWorker"
+else
+    echo "warning: SwiftPythonWorker not found at $WORKER_SRC — app will not be able to run Python"
+fi
 
 # Copy SPM resource bundles into Contents/Resources so Bundle.module
 # can locate them at runtime. Required by any package that embeds
