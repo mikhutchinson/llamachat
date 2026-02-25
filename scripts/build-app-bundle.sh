@@ -36,6 +36,19 @@ find "$BUILD_DIR" -maxdepth 1 -name "*.bundle" -type d | while read -r bundle; d
     cp -r "$bundle" "$APP_DIR/Contents/Resources/"
 done
 
+# Binary targets (xcframework) don't generate resource bundles via SPM.
+# Look for them in the resolved dependency checkouts (e.g. SwiftPython
+# binary package ships SwiftPython_SwiftPythonRuntime.bundle).
+if [ -d "$PKG_DIR/.build/checkouts" ]; then
+    find "$PKG_DIR/.build/checkouts" -name "*.bundle" -type d -maxdepth 2 | while read -r bundle; do
+        BNAME="$(basename "$bundle")"
+        if [ ! -d "$APP_DIR/Contents/Resources/$BNAME" ]; then
+            echo "Copying dependency resource bundle: $BNAME"
+            cp -r "$bundle" "$APP_DIR/Contents/Resources/"
+        fi
+    done
+fi
+
 # Info.plist for proper .app behavior (Dock, activation, etc.)
 cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
