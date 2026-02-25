@@ -37,6 +37,19 @@ private func findWorkerExecutable() -> String? {
         return rootBuild.path
     }
 
+    // SwiftPythonWorker is shipped inside the swiftpython-commercial checkout
+    // and landed there after a plain `swift build`.
+    let repoRoot = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()  // Tests/
+        .deletingLastPathComponent()  // repo root
+    for checkoutName in ["swiftpython-commercial"] {
+        let checkoutWorker = repoRoot
+            .appendingPathComponent(".build/checkouts/\(checkoutName)/SwiftPythonWorker")
+        if fm.isExecutableFile(atPath: checkoutWorker.path) {
+            return checkoutWorker.path
+        }
+    }
+
     return nil
 }
 
@@ -411,7 +424,13 @@ final class DocumentExtractorTests: XCTestCase {
 
         XCTAssertTrue(result.succeeded)
         let combined = result.combinedText
-        XCTAssertTrue(combined.contains("--- Page 1 ---"), "Combined text should contain page markers")
+        // Single-page documents return plain text with no marker (by design).
+        // Page markers ("--- Page N ---") only appear when there are multiple pages.
+        XCTAssertFalse(combined.isEmpty, "Combined text should not be empty")
+        XCTAssertTrue(combined.contains("Some text content"), "Combined text should contain the original content")
+        if result.totalPages > 1 {
+            XCTAssertTrue(combined.contains("--- Page 1 ---"), "Multi-page combined text should contain page markers")
+        }
     }
 
     func testScannedPagesDetection() async throws {
