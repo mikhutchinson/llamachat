@@ -1,0 +1,35 @@
+# SwiftPython Module Configuration
+# Used by the SwiftPythonPlugin to decide which Python modules to generate
+# bindings for. Copy to python-modules.yml and customize.
+
+modules:
+  # Simple format: module name matches Python import and stubs/<name>/ directory
+  - numpy
+  - pandas
+  - matplotlib
+  - scipy
+  - sklearn
+
+  # These are auto-mapped by the plugin:
+  # - "torch" → Swift module "PyTorch", Python import "torch"
+  # - "sqlite3" → Swift module "SQLite3", Python import "sqlite3"
+  # - "pil" → Swift module "PIL", Python import "PIL"
+  - torch
+  - torchvision
+  - name: Transformers
+    python_module: swiftpython_transformers
+    stub_dir: ./stubs/transformers
+  - mlx
+  - sqlite3
+  - pil
+  - networkx
+
+  # Extended format for custom mappings:
+  # - name: MyModule
+  #   python_module: my_python_module
+  #   stub_dir: ./stubs/my_module
+
+# The plugin automatically:
+# 1. Looks for stubs/<python_module>/ or stubs/<name>/ directory
+# 2. Passes --python-module to handle Swift/Python name mismatches
+# 3. Generates bindings to the plugin work directory

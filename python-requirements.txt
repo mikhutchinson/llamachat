@@ -1,0 +1,30 @@
+# Canonical Python requirements for CI / examples
+# Pin critical packages for reproducible CI. Adjust versions as needed.
+numpy>=1.26,<3
+# pandas==2.2.3  # optional: pin if you have a preferred version
+matplotlib
+scipy
+scikit-learn
+# Needed by SmallvilleDemo llama.cpp backend (`InferenceBackend.llama_cpp`)
+# Keep unpinned to maximize wheel compatibility across Python patch versions.
+llama-cpp-python
+# Externalized memory system: sqlite-vec for vector search
+sqlite-vec
+# Embeddings use torch + transformers (AutoModel) directly — no sentence-transformers needed
+# torch can be heavy and platform-specific; enable in CI via INSTALL_TORCH=true
+# torch==2.2.0
+# mlx only works on Apple Silicon (M1/M2/M3/M4); enable via INSTALL_MLX=true
+# mlx
+Pillow
+pyarrow
+# Document text extraction (PDF, DOCX, PPTX, XLSX, HTML, etc.) → Markdown
+# [docx,pptx,xlsx] = Office format support (optional extras)
+markitdown[docx,pptx,xlsx]
+# PDF backend for markitdown
+pdfminer.six
+# Language detection for document metadata
+langdetect
+# OCR fallback for scanned PDFs (optional — extraction works without these)
+# Requires system `tesseract` (brew install tesseract) and `poppler` (brew install poppler)
+# pytesseract
+# pdf2image

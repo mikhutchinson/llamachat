@@ -1,0 +1,43 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+*.xcodeproj
+xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+Artifacts/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+.cache/
+.cursor/
+.windsurf/
+SwiftPython.code-workspace
+*.swp
+*.swo
+*~
+
+# Generated files
+GeneratedModules/
+Generated/
+
+# Test artifacts
+.coverage
+htmlcov/
+
+# DataScope (real app, not a demo)
+Demo/DataScope/
