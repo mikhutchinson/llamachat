@@ -2,7 +2,18 @@
 
 A native macOS chat app powered by local GGUF language models. Runs entirely on-device with Metal GPU acceleration.
 
+## Screenshots
+
+| Image captioning | PDF attachment |
+|:---:|:---:|
+| ![Image captioning](assets/screenshots/screenshot-image-captioning.png) | ![Attaching a PDF](assets/screenshots/screenshot-pdf-attach.png) |
+
+| Document extraction (thinking) | Document extraction result |
+|:---:|:---:|
+| ![PDF extraction with thinking](assets/screenshots/screenshot-pdf-thinking.png) | ![PDF extraction result](assets/screenshots/screenshot-pdf-result.png) |
+
 ## Features
+
 
 - Multi-turn chat with conversation persistence
 - Model Hub: browse, download, and activate GGUF models from Hugging Face
