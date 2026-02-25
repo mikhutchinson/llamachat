@@ -7,7 +7,52 @@ PKG_DIR="$(dirname "$SCRIPT_DIR")"
 APP_NAME="Llama Chat"
 APP_DIR="$PKG_DIR/build/Llama Chat.app"
 
-echo "Building LlamaChatUI and SwiftPythonWorker..."
+# ── Preflight checks ──────────────────────────────────────────────
+echo "Checking prerequisites..."
+
+# 1. Xcode (not just CLT)
+XCODE_PATH="$(xcode-select -p 2>/dev/null || true)"
+if [ -z "$XCODE_PATH" ]; then
+    echo "error: No developer tools found. Install Xcode from the App Store."
+    exit 1
+fi
+if [[ "$XCODE_PATH" == */CommandLineTools* ]]; then
+    echo "error: Xcode Command Line Tools alone are not sufficient."
+    echo "       Install Xcode from the App Store, then run:"
+    echo "       sudo xcode-select -s /Applications/Xcode.app"
+    exit 1
+fi
+
+# 2. Swift compiler
+if ! command -v swift &>/dev/null; then
+    echo "error: Swift compiler not found. Install Xcode from the App Store."
+    exit 1
+fi
+SWIFT_VER="$(swift --version 2>&1 | head -1)"
+echo "  Swift: $SWIFT_VER"
+
+# 3. Python 3.13
+PYTHON_HOME="/opt/homebrew/opt/python@3.13"
+if [ ! -d "$PYTHON_HOME" ]; then
+    PYTHON_HOME="/usr/local/opt/python@3.13"
+fi
+if [ ! -d "$PYTHON_HOME" ]; then
+    echo "error: Homebrew Python 3.13 not found. Install with: brew install python@3.13"
+    exit 1
+fi
+echo "  Python: $PYTHON_HOME"
+
+# 4. llama-cpp-python
+if ! python3 -c "import llama_cpp" &>/dev/null; then
+    echo "warning: llama-cpp-python not installed. Install with: pip3 install llama-cpp-python"
+    echo "         The app will build but model loading will fail at runtime."
+fi
+
+echo "Prerequisites OK."
+echo ""
+
+# ── Build ─────────────────────────────────────────────────────────
+echo "Building LlamaChatUI..."
 cd "$PKG_DIR"
 swift build --product LlamaChatUI
 
@@ -36,10 +81,7 @@ fi
 # Create launcher wrapper that sets up Python environment before exec.
 # Required because Finder/Dock launches don't inherit shell env, so
 # the worker subprocess can't find Python site-packages without this.
-PYTHON_HOME="/opt/homebrew/opt/python@3.13"
-if [ ! -d "$PYTHON_HOME" ] && [ -d "/usr/local/opt/python@3.13" ]; then
-    PYTHON_HOME="/usr/local/opt/python@3.13"
-fi
+# PYTHON_HOME was already resolved by the preflight checks above.
 PYTHON_FW="$PYTHON_HOME/Frameworks/Python.framework/Versions/3.13"
 
 cat > "$APP_DIR/Contents/MacOS/LlamaChatUI" << LAUNCHER

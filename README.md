@@ -15,10 +15,13 @@ A native macOS chat app powered by local GGUF language models. Runs entirely on-
 ## Requirements
 
 - macOS 15.0+
+- **Xcode 16+** (install from [App Store](https://apps.apple.com/app/xcode/id497799835), then run `sudo xcode-select -s /Applications/Xcode.app`)
+- Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - Homebrew Python 3.13: `brew install python@3.13`
 - Python packages: `pip3 install llama-cpp-python`
 - A GGUF model file (e.g. from [Hugging Face](https://huggingface.co/models?search=gguf))
-- SwiftPython runtime (included automatically via SPM)
+
+> **Note:** Xcode Command Line Tools alone are not sufficient. The full Xcode install is required for SwiftUI and the macOS SDK.
 
 ## Build
 
@@ -33,6 +36,19 @@ export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.3
 cp -R "build/Llama Chat.app" /Applications/
 open "/Applications/Llama Chat.app"
 ```
+
+## Troubleshooting
+
+**"failed to build module 'Foundation'" or "redefinition of module 'SwiftBridging'"**
+
+This means Swift can't find a compatible SDK. Install Xcode from the App Store, then:
+```bash
+sudo xcode-select -s /Applications/Xcode.app
+```
+
+**"xcode-select: note: No developer tools were found"**
+
+Install Xcode (not just Command Line Tools) from the App Store.
 
 ## Usage
 
