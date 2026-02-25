@@ -15,13 +15,15 @@ A native macOS chat app powered by local GGUF language models. Runs entirely on-
 ## Requirements
 
 - macOS 15.0+
-- **Xcode 16+** (install from [App Store](https://apps.apple.com/app/xcode/id497799835), then run `sudo xcode-select -s /Applications/Xcode.app`)
-- Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-- Homebrew Python 3.13: `brew install python@3.13`
-- Python packages: `pip3 install llama-cpp-python`
+- **Xcode 16+** — install from the [App Store](https://apps.apple.com/app/xcode/id497799835), then run `sudo xcode-select -s /Applications/Xcode.app`. Command Line Tools alone are not sufficient.
+- **Homebrew**: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+- **Homebrew Python 3.13**: `brew install python@3.13`
+- **Python venv** (required for document extraction, code sandbox, and embeddings):
+  ```bash
+  python3 -m venv .venv
+  .venv/bin/pip install -r python-requirements.txt
+  ```
 - A GGUF model file (e.g. from [Hugging Face](https://huggingface.co/models?search=gguf))
-
-> **Note:** Xcode Command Line Tools alone are not sufficient. The full Xcode install is required for SwiftUI and the macOS SDK.
 
 ## Build
 
@@ -41,7 +43,7 @@ open "/Applications/Llama Chat.app"
 
 **"failed to build module 'Foundation'" or "redefinition of module 'SwiftBridging'"**
 
-This means Swift can't find a compatible SDK. Install Xcode from the App Store, then:
+Swift can't find a compatible SDK. Install Xcode from the App Store, then:
 ```bash
 sudo xcode-select -s /Applications/Xcode.app
 ```
@@ -49,6 +51,23 @@ sudo xcode-select -s /Applications/Xcode.app
 **"xcode-select: note: No developer tools were found"**
 
 Install Xcode (not just Command Line Tools) from the App Store.
+
+**"Homebrew Python 3.13 Framework not found"** (build-app-bundle.sh fails)
+
+Install Homebrew and Python 3.13:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install python@3.13
+```
+
+**PDF/DOCX/XLSX shows "content could not be extracted"**
+
+The Python venv is missing or incomplete. Create it from the repo root:
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r python-requirements.txt
+```
+No rebuild needed — restart the app and document extraction will work. See `BUGFIX.md` (BUG-007) for details.
 
 ## Usage
 
