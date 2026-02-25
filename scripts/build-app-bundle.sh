@@ -93,14 +93,15 @@ exec "\$DIR/LlamaChatUI.bin" "\$@"
 LAUNCHER
 chmod +x "$APP_DIR/Contents/MacOS/LlamaChatUI"
 
-# Copy SPM resource bundles next to the binary so Bundle.module can
-# locate them at runtime. SPM's generated resource_bundle_accessor
-# searches Bundle.main.resourceURL which for a bare executable resolves
-# to the directory containing the binary (Contents/MacOS/), not
-# Contents/Resources/. Without this the app crashes with EXC_BREAKPOINT
-# inside Math.FontRegistry.graphicsFont or similar Bundle.module callers.
+# Copy SPM resource bundles into the .app root directory. SPM's generated
+# resource_bundle_accessor.swift uses Bundle.main.bundleURL (the .app dir)
+# NOT Bundle.main.resourceURL (Contents/Resources/). For a macOS .app,
+# CoreFoundation detects the bundle structure and sets bundleURL to the
+# .app root, so the accessor looks for:
+#   /path/to/Foo.app/packagename_TargetName.bundle
+# Without this the app crashes with EXC_BREAKPOINT in Bundle.module.
 find "$BUILD_DIR" -maxdepth 1 -name "*.bundle" -type d | while read -r bundle; do
-    cp -r "$bundle" "$APP_DIR/Contents/MacOS/"
+    cp -r "$bundle" "$APP_DIR/"
 done
 
 
