@@ -18,7 +18,7 @@ echo "Creating app bundle..."
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
 
-cp "$BUILD_DIR/LlamaChatUI" "$APP_DIR/Contents/MacOS/"
+cp "$BUILD_DIR/LlamaChatUI" "$APP_DIR/Contents/MacOS/LlamaChatUI.bin"
 
 WORKER_SRC="${SWIFTPYTHON_WORKER_PATH:-$BUILD_DIR/SwiftPythonWorker}"
 if [ -f "$WORKER_SRC" ]; then
@@ -26,6 +26,24 @@ if [ -f "$WORKER_SRC" ]; then
 else
     echo "warning: SwiftPythonWorker not found at $WORKER_SRC — app will not be able to run Python"
 fi
+
+# Create launcher wrapper that sets up Python environment before exec.
+# Required because Finder/Dock launches don't inherit shell env, so
+# the worker subprocess can't find Python site-packages without this.
+PYTHON_HOME="/opt/homebrew/opt/python@3.13"
+if [ ! -d "$PYTHON_HOME" ] && [ -d "/usr/local/opt/python@3.13" ]; then
+    PYTHON_HOME="/usr/local/opt/python@3.13"
+fi
+PYTHON_FW="$PYTHON_HOME/Frameworks/Python.framework/Versions/3.13"
+
+cat > "$APP_DIR/Contents/MacOS/LlamaChatUI" << LAUNCHER
+#!/bin/bash
+export PYTHONHOME="${PYTHON_FW}"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:\$PATH"
+DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+exec "\$DIR/LlamaChatUI.bin" "\$@"
+LAUNCHER
+chmod +x "$APP_DIR/Contents/MacOS/LlamaChatUI"
 
 # Copy SPM resource bundles into Contents/Resources so Bundle.module
 # can locate them at runtime. Required by any package that embeds
@@ -50,13 +68,7 @@ if [ -d "$PKG_DIR/.build/checkouts" ]; then
 fi
 
 # Info.plist for proper .app behavior (Dock, activation, etc.)
-PYTHON_HOME="/opt/homebrew/opt/python@3.13"
-if [ ! -d "$PYTHON_HOME" ] && [ -d "/usr/local/opt/python@3.13" ]; then
-    PYTHON_HOME="/usr/local/opt/python@3.13"
-fi
-PYTHON_FW="$PYTHON_HOME/Frameworks/Python.framework/Versions/3.13"
-
-cat > "$APP_DIR/Contents/Info.plist" << PLIST
+cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -73,13 +85,6 @@ cat > "$APP_DIR/Contents/Info.plist" << PLIST
     <string>1.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>15.0</string>
-    <key>LSEnvironment</key>
-    <dict>
-        <key>PYTHONHOME</key>
-        <string>${PYTHON_FW}</string>
-        <key>PATH</key>
-        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
-    </dict>
 </dict>
 </plist>
 PLIST
