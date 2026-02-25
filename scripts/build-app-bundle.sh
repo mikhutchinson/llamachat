@@ -50,7 +50,13 @@ if [ -d "$PKG_DIR/.build/checkouts" ]; then
 fi
 
 # Info.plist for proper .app behavior (Dock, activation, etc.)
-cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
+PYTHON_HOME="/opt/homebrew/opt/python@3.13"
+if [ ! -d "$PYTHON_HOME" ] && [ -d "/usr/local/opt/python@3.13" ]; then
+    PYTHON_HOME="/usr/local/opt/python@3.13"
+fi
+PYTHON_FW="$PYTHON_HOME/Frameworks/Python.framework/Versions/3.13"
+
+cat > "$APP_DIR/Contents/Info.plist" << PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -67,6 +73,13 @@ cat > "$APP_DIR/Contents/Info.plist" << 'PLIST'
     <string>1.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>15.0</string>
+    <key>LSEnvironment</key>
+    <dict>
+        <key>PYTHONHOME</key>
+        <string>${PYTHON_FW}</string>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
 </dict>
 </plist>
 PLIST
