@@ -44,4 +44,4 @@ Use the Model Hub to browse and download models directly from Hugging Face.
 
 ## License
 
-Proprietary. All rights reserved.
+MIT License. See [LICENSE](LICENSE) for details.
