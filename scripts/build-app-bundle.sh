@@ -33,11 +33,11 @@ echo "  Swift: $SWIFT_VER"
 
 # 3. Python 3.13
 PYTHON_HOME="/opt/homebrew/opt/python@3.13"
-if [ ! -d "$PYTHON_HOME" ]; then
+if [ ! -d "$PYTHON_HOME/Frameworks" ]; then
     PYTHON_HOME="/usr/local/opt/python@3.13"
 fi
-if [ ! -d "$PYTHON_HOME" ]; then
-    echo "error: Homebrew Python 3.13 not found. Install with: brew install python@3.13"
+if [ ! -d "$PYTHON_HOME/Frameworks" ]; then
+    echo "error: Homebrew Python 3.13 Framework not found. Install with: brew install python@3.13"
     exit 1
 fi
 echo "  Python: $PYTHON_HOME"
