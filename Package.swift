@@ -67,6 +67,28 @@ private func swiftPythonConfig() -> SwiftPythonDependencyConfig {
         """)
 }
 
+private func detectPythonHome() -> String {
+    if let home = ProcessInfo.processInfo.environment["PYTHON_HOME"], !home.isEmpty {
+        return home
+    }
+    let candidates = [
+        "/opt/homebrew/opt/python@3.13",
+        "/usr/local/opt/python@3.13",
+    ]
+    return candidates.first(where: { FileManager.default.fileExists(atPath: $0) })
+        ?? "/opt/homebrew/opt/python@3.13"
+}
+
+private func pythonLinkerSettings() -> [LinkerSetting] {
+    let pythonHome = detectPythonHome()
+    return [
+        .unsafeFlags([
+            "-L\(pythonHome)/lib",
+            "-lpython3.13",
+        ]),
+    ]
+}
+
 private func swiftPythonWorkerDependencyIfLocalSource() -> [Target.Dependency] {
     if swiftPythonConfig().usesCommercialPackage {
         return []
@@ -101,7 +123,8 @@ let package = Package(
             path: "Sources",
             swiftSettings: [
                 .unsafeFlags(["-parse-as-library"])
-            ]
+            ],
+            linkerSettings: pythonLinkerSettings()
         ),
         .executableTarget(
             name: "LlamaInferenceDemo",
@@ -123,7 +146,8 @@ let package = Package(
                 "ChatStorage",
                 .product(name: "Textual", package: "textual"),
             ] + swiftPythonWorkerDependencyIfLocalSource(),
-            path: "UI"
+            path: "UI",
+            linkerSettings: pythonLinkerSettings()
         ),
         .testTarget(
             name: "LlamaInferenceDemoTests",
