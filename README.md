@@ -26,8 +26,8 @@ A native macOS chat app powered by local GGUF language models. Runs entirely on-
 git clone https://github.com/mikhutchinson/llamachat.git
 cd llamachat
 
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=<binary-package-url>
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.0
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.2
 export SWIFTPYTHON_WORKER_PATH=<path-to-SwiftPythonWorker>
 
 ./scripts/build-app-bundle.sh
