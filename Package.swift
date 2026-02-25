@@ -83,7 +83,7 @@ private func pythonLinkerSettings() -> [LinkerSetting] {
     let pythonHome = detectPythonHome()
     return [
         .unsafeFlags([
-            "-L\(pythonHome)/lib",
+            "-L\(pythonHome)/Frameworks/Python.framework/Versions/3.13/lib",
             "-lpython3.13",
         ]),
     ]
