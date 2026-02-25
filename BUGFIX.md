@@ -107,6 +107,23 @@ The `--user` flag installs into `~/Library/Python/3.13/lib/python/site-packages/
 
 ---
 
+## BUG-007: Document extraction silently fails (PDF, DOCX, XLSX show "could not be extracted")
+
+**Symptom:** Attaching a PDF or Office document to the chat returns "content could not be extracted". Image captioning works fine.
+
+**Root cause:** `discoverVenvPath()` in `ChatViewModel.swift` walks up the source-file directory tree at compile-time looking for a `.venv`. When no `.venv` exists in the project tree, `venvPath` is `nil`. With no venv injected, Python workers never get `markitdown`, `pdfminer.six`, etc. on `sys.path`. The first call to `from markitdown import MarkItDown` inside the worker raises `ImportError`, which is caught and returned as `{"error": "...", "text": ""}`. Image extraction is unaffected because VLM uses `llama-cpp-python`, installed system-wide.
+
+**Fix:** Create a `.venv` at the repo root and install all Python dependencies:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r python-requirements.txt
+```
+
+**No rebuild required.** `discoverVenvPath()` runs at runtime — restart the app and extraction works immediately.
+
+---
+
 ## Quick Reference: Full Consumer Setup
 
 ```bash
