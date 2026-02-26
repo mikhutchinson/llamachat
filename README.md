@@ -39,7 +39,7 @@ git clone https://github.com/mikhutchinson/llamachat.git
 cd llamachat
 
 export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.7
 
 ./scripts/build-app-bundle.sh
 cp -R "build/Llama Chat.app" /Applications/
@@ -84,7 +84,7 @@ rm -rf .build
 sudo rm -rf "/Applications/Llama Chat.app"
 
 export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.7
 ./scripts/build-app-bundle.sh
 
 sudo cp -R "build/Llama Chat.app" /Applications/

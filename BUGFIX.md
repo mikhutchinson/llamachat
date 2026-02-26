@@ -61,7 +61,7 @@ Llama Chat.app/
 
 **Additional pitfall:** v0.1.4 and v0.1.5 were also broken because SPM incremental builds cached the old `.o` files. The xcframework was "rebuilt" but reused stale object files containing the old `Bundle.module` call. Only `rm -rf .build` before `swift build` guarantees a fresh compile. See the xcframework build runbook in SwiftPython for the full procedure.
 
-**Action:** Always use `SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6` or later.
+**Action:** Always use `SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.7` or later.
 
 ---
 
@@ -135,7 +135,7 @@ brew install python@3.13
 git clone https://github.com/mikhutchinson/llamachat.git
 cd llamachat
 export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.7
 ./scripts/build-app-bundle.sh
 cp -R "build/Llama Chat.app" /Applications/
 ```
@@ -148,7 +148,7 @@ rm -rf .build
 sudo rm -rf "/Applications/Llama Chat.app"
 
 export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
-export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.7
 ./scripts/build-app-bundle.sh
 
 sudo cp -R "build/Llama Chat.app" /Applications/
