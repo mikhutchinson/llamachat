@@ -404,6 +404,9 @@ private struct ModelTab: View {
                     .accessibilityLabel("Workers")
                     .accessibilityValue("\(workerCount) workers")
                 }
+                Text("Each worker is a separate process that loads the full model. More workers allow parallel conversations but multiply GPU/RAM usage. Use 1 worker for large models (13B+).")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 LabeledContent("Context") {
                     Picker("", selection: $contextSize) {
@@ -432,6 +435,21 @@ private struct ModelTab: View {
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("GPU Layers")
                     .accessibilityValue(nGpuLayers == -1 ? "All layers" : "\(nGpuLayers) layers")
+                }
+                if nGpuLayers == -1 {
+                    Label {
+                        Text("All layers on GPU — if the model is too large for your VRAM the worker will crash. Try 4–16 layers for large models (13B+).")
+                            .font(.caption)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
+                } else {
+                    Text("Number of transformer layers to offload to GPU. Set to 0 for CPU-only. Higher values are faster but use more VRAM.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 LabeledContent("Shared Memory") {
                     Toggle("", isOn: $useSharedMemory)

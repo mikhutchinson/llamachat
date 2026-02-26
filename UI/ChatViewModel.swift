@@ -2527,32 +2527,62 @@ class ChatViewModel: ObservableObject {
     }
 
     static func describeError(_ error: Error) -> String {
+        // First get the raw description from the underlying error type.
+        let raw: String
         if let workerError = error as? PythonWorkerError {
-            return String(describing: workerError)
-        }
-
-        if let diagnostics = PythonError.fetchDetailed() {
+            raw = String(describing: workerError)
+        } else if let diagnostics = PythonError.fetchDetailed() {
             if let traceback = diagnostics.traceback, !traceback.isEmpty {
-                return "\(diagnostics.type): \(diagnostics.message)\n\(traceback)"
+                raw = "\(diagnostics.type): \(diagnostics.message)\n\(traceback)"
+            } else {
+                raw = "\(diagnostics.type): \(diagnostics.message)"
             }
-            return "\(diagnostics.type): \(diagnostics.message)"
+        } else if let pyError = error as? PythonError {
+            raw = String(describing: pyError)
+        } else {
+            let described = String(describing: error)
+            if !described.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                raw = described
+            } else {
+                let localized = (error as NSError).localizedDescription
+                raw = localized.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Unknown error" : localized
+            }
         }
 
-        if let pyError = error as? PythonError {
-            return String(describing: pyError)
+        return humanReadableWorkerError(raw) ?? raw
+    }
+
+    /// Maps known low-level worker crash messages to human-readable explanations with
+    /// actionable advice. Returns nil when the message isn't a recognised crash pattern.
+    private static func humanReadableWorkerError(_ raw: String) -> String? {
+        let lower = raw.lowercased()
+
+        // Worker OOM / Metal crash: "Worker N crashed with exit code -1"
+        if lower.contains("crashed with exit code -1") || lower.contains("worker") && lower.contains("exit code -1") {
+            return """
+                The model worker crashed (likely out of GPU memory). \
+                Try reducing GPU Layers in Settings (⌘,) — e.g. set it to a small number like 4–16 \
+                to partially offload to CPU, or 0 to run entirely on CPU. \
+                Large models (30B+) may require fewer GPU layers or a smaller quantisation.
+                """
         }
 
-        let described = String(describing: error)
-        if !described.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return described
+        // Stale handle after worker respawn: "Stale handle …: worker N was respawned"
+        if lower.contains("stale handle") && lower.contains("respawned") {
+            return "The previous request caused the worker to restart. Please try sending your message again."
         }
 
-        let localized = (error as NSError).localizedDescription
-        if !localized.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return localized
+        // Pool at capacity with max 0 — usually happens right after a crash/respawn
+        if lower.contains("pool at capacity") && lower.contains("max 0") {
+            return "The inference pool is not ready yet (worker is still restarting). Wait a moment and try again, or reload the model in Settings (⌘,)."
         }
 
-        return "Unknown error"
+        // Generic pool capacity error
+        if lower.contains("pool at capacity") {
+            return "The inference pool is busy. Please wait a moment and try again."
+        }
+
+        return nil
     }
 
     private func updateLiveAssistantMessage(
