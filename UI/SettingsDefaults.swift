@@ -20,6 +20,7 @@ enum SettingsKeys {
 
     static let vlmModelPath = "vlmModelPath"
     static let vlmClipPath = "vlmClipPath"
+    static let vlmArchitecture = "vlmArchitecture"
     static let vlmIdleTimeoutSecs = "vlmIdleTimeoutSecs"
     static let recentModelPaths = "recentModelPaths"
 
@@ -62,6 +63,7 @@ enum SettingsDefaults {
 
     static let vlmModelPath = ""
     static let vlmClipPath = ""
+    static let vlmArchitecture = ""
     static let vlmIdleTimeoutSecs = 300
     static let recentModelPaths = ""
 
@@ -236,6 +238,7 @@ enum ResetScope: String, CaseIterable {
             ud.set(SettingsDefaults.useSharedMemory, forKey: SettingsKeys.useSharedMemory)
             ud.set(SettingsDefaults.vlmModelPath, forKey: SettingsKeys.vlmModelPath)
             ud.set(SettingsDefaults.vlmClipPath, forKey: SettingsKeys.vlmClipPath)
+            ud.set(SettingsDefaults.vlmArchitecture, forKey: SettingsKeys.vlmArchitecture)
             ud.set(SettingsDefaults.vlmIdleTimeoutSecs, forKey: SettingsKeys.vlmIdleTimeoutSecs)
             ud.set(SettingsDefaults.recentModelPaths, forKey: SettingsKeys.recentModelPaths)
         case .ui:

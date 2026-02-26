@@ -13,6 +13,7 @@ public struct HFModelSummary: Codable, Identifiable, Sendable {
     public var author: String { id.components(separatedBy: "/").first ?? "" }
     public var modelName: String { id.components(separatedBy: "/").last ?? id }
     public var isVLM: Bool { pipelineTag == "image-text-to-text" || tags.contains("vision") }
+    public var vlmArchitecture: String? { nil }
 
     /// Human-friendly description derived from the HF pipeline_tag.
     public var pipelineDescription: String? {
@@ -47,6 +48,7 @@ public struct HFModelDetail: Codable, Sendable {
     public var author: String { id.components(separatedBy: "/").first ?? "" }
     public var modelName: String { id.components(separatedBy: "/").last ?? id }
     public var isVLM: Bool { pipelineTag == "image-text-to-text" || tags.contains("vision") }
+    public var vlmArchitecture: String? { gguf?.architecture }
 
     private enum CodingKeys: String, CodingKey {
         case id

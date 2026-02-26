@@ -139,3 +139,33 @@ export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
 ./scripts/build-app-bundle.sh
 cp -R "build/Llama Chat.app" /Applications/
 ```
+
+## Clean Reinstall
+
+Use this if SPM incremental builds have pulled stale object files (e.g. BUG-003):
+```bash
+rm -rf .build
+sudo rm -rf "/Applications/Llama Chat.app"
+
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+./scripts/build-app-bundle.sh
+
+sudo cp -R "build/Llama Chat.app" /Applications/
+```
+
+
+---
+
+## BUG-008: Qwen3-VL model loading fails with unknown model architecture
+
+**Symptom:** `llama_model_load: error loading model: error loading model architecture: unknown model architecture: 'qwen3vl'`
+
+**Root cause:** The standard `llama-cpp-python` relies on an upstream `llama.cpp` version that may not yet support the latest bleeding-edge architectures like `qwen3vl` encoded in GGUF files by Unsloth.
+
+**Fix:** Install the `JamePeng/llama-cpp-python` fork which incorporates up-to-date vision handlers for QwenVL models. 
+
+```bash
+/opt/homebrew/bin/python3.13 -m pip install --break-system-packages --user git+https://github.com/JamePeng/llama-cpp-python.git
+```
+

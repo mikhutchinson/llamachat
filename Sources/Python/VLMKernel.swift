@@ -32,7 +32,7 @@ public enum VLMKernel {
         def last_used(self):
             return self._last_used
 
-        def load(self, model_path, clip_path, n_ctx=2048, n_gpu_layers=-1):
+        def load(self, model_path, clip_path, n_ctx=2048, n_gpu_layers=-1, architecture=None):
             """Load VLM model + CLIP projection.
 
             Args:
@@ -40,6 +40,7 @@ public enum VLMKernel {
                 clip_path: Path to the mmproj CLIP file
                 n_ctx: Context size
                 n_gpu_layers: GPU layers (-1 = all)
+                architecture: Optional string denoting the VLM architecture
             """
             if self._loaded:
                 if self._model_path == model_path and self._clip_path == clip_path:
@@ -49,10 +50,28 @@ public enum VLMKernel {
 
             t0 = time.perf_counter()
             try:
+                import inspect
                 from llama_cpp import Llama
-                from llama_cpp.llama_chat_format import Llava15ChatHandler
+                from llama_cpp import llama_chat_format as fmt
 
-                handler = Llava15ChatHandler(clip_model_path=clip_path, verbose=False)
+                HandlerCls = None
+                if architecture:
+                    arch_norm = architecture.lower().replace("_", "").replace("-", "")
+                    self._log(f"Searching for handler for architecture: {architecture} ({arch_norm})")
+                    for name, obj in inspect.getmembers(fmt):
+                        if inspect.isclass(obj) and "ChatHandler" in name:
+                            cls_norm = name.lower().replace("chathandler", "")
+                            if cls_norm.startswith(arch_norm):
+                                HandlerCls = obj
+                                self._log(f"Auto-detected handler: {name}")
+                                break
+
+                # Default fallback
+                if HandlerCls is None:
+                    self._log("Fallback handler: Llava15ChatHandler")
+                    HandlerCls = fmt.Llava15ChatHandler
+
+                handler = HandlerCls(clip_model_path=clip_path, verbose=False)
 
                 class SuppressStderr:
                     def __enter__(self):
@@ -242,6 +261,7 @@ public enum VLMKernel {
         kernelHandle: PyHandle,
         modelPath: String,
         clipPath: String,
+        vlmArchitecture: String? = nil,
         contextSize: Int = 2048,
         nGpuLayers: Int = -1,
         timeout: TimeInterval = 120
@@ -253,6 +273,7 @@ public enum VLMKernel {
             kwargs: [
                 "n_ctx": .python(contextSize),
                 "n_gpu_layers": .python(nGpuLayers),
+                "architecture": .python(vlmArchitecture ?? .none),
             ],
             worker: workerIndex,
             timeout: timeout

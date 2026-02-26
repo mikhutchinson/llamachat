@@ -442,8 +442,8 @@ struct ModelHubView: View {
                     .foregroundColor(theme.textPrimary)
                     .lineLimit(1)
                 if model.isVLM {
-                    Text("VLM")
-                        .font(.caption2.weight(.medium))
+                    Text(model.vlmArchitecture?.capitalized ?? "VLM")
+                        .font(.caption2.weight(.bold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(theme.accent.opacity(0.15))
@@ -552,7 +552,7 @@ struct ModelHubView: View {
                        model.isVLM,
                        !allMainFiles.isEmpty,
                        !allProjFiles.isEmpty {
-                        vlmBundleRow(mainFiles: allMainFiles, projFiles: allProjFiles)
+                        vlmBundleRow(mainFiles: allMainFiles, projFiles: allProjFiles, model: model)
                     }
 
                     if visibleMainFiles.isEmpty, visibleProjFiles.isEmpty {
@@ -742,7 +742,7 @@ struct ModelHubView: View {
         }
     }
 
-    private func vlmBundleRow(mainFiles: [GGUFFile], projFiles: [GGUFFile]) -> some View {
+    private func vlmBundleRow(mainFiles: [GGUFFile], projFiles: [GGUFFile], model: HFModelSummary) -> some View {
         let preferred = mainFiles.first(where: { $0.quantLevel == .Q4_K_M })
             ?? mainFiles.first(where: { $0.quantLevel == .Q4_K_S })
             ?? mainFiles.first!
@@ -773,7 +773,7 @@ struct ModelHubView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(theme.accent)
                         .font(.system(size: 13))
-                    vlmBundleUseAsMenu(mainFile: preferred, projFile: proj)
+                    vlmBundleUseAsMenu(mainFile: preferred, projFile: proj, model: model)
                 }
             } else if anyActive {
                 ProgressView().controlSize(.small)
@@ -800,13 +800,13 @@ struct ModelHubView: View {
     }
 
     @ViewBuilder
-    private func vlmBundleUseAsMenu(mainFile: GGUFFile, projFile: GGUFFile) -> some View {
+    private func vlmBundleUseAsMenu(mainFile: GGUFFile, projFile: GGUFFile, model: HFModelSummary) -> some View {
         if let mainPath = downloadManager.localPath(for: mainFile.filename),
            let projPath = downloadManager.localPath(for: projFile.filename),
            !mainPath.isEmpty, !projPath.isEmpty {
             Menu {
                 Button {
-                    hubVM.applyModel(path: mainPath, role: .vlmModel)
+                    hubVM.applyModel(path: mainPath, role: .vlmModel, architecture: model.vlmArchitecture)
                     hubVM.applyModel(path: projPath, role: .vlmProjection)
                 } label: {
                     Label("VLM Model + Projection", systemImage: "eye.trianglebadge.exclamationmark")
@@ -978,7 +978,7 @@ struct ModelHubView: View {
         return Menu {
             ForEach(ModelRole.allCases, id: \.self) { role in
                 Button {
-                    hubVM.applyModel(path: localPath, role: role)
+                    hubVM.applyModel(path: localPath, role: role, architecture: role == .vlmModel ? model.vlmArchitecture : nil)
                 } label: {
                     HStack {
                         Text(role.rawValue)
@@ -1263,7 +1263,7 @@ struct ModelHubView: View {
 
                 Spacer(minLength: 12)
 
-                modelLevelUseAsMenu(mainFiles: mainFiles, projectionFiles: projectionFiles)
+                modelLevelUseAsMenu(mainFiles: mainFiles, projectionFiles: projectionFiles, model: model)
                 revealLocalFilesControl(localFiles)
                 copyLocalPathControl(localFiles)
                 modelLevelDeleteControls(model: model, files: localFiles)
@@ -1282,7 +1282,7 @@ struct ModelHubView: View {
     }
 
     @ViewBuilder
-    private func modelLevelUseAsMenu(mainFiles: [DiscoveredModel], projectionFiles: [DiscoveredModel]) -> some View {
+    private func modelLevelUseAsMenu(mainFiles: [DiscoveredModel], projectionFiles: [DiscoveredModel], model: HFModelSummary) -> some View {
         if !mainFiles.isEmpty || !projectionFiles.isEmpty {
             let suggestedMain = preferredMainFile(from: mainFiles)
             let suggestedProjection = projectionFiles.first
@@ -1300,14 +1300,14 @@ struct ModelHubView: View {
                         hubVM.applyModel(path: suggestedMain.path, role: .summarizer)
                     }
                     Button(useAsLabel(role: .vlmModel, file: suggestedMain, includeFilename: includeMainFilename)) {
-                        hubVM.applyModel(path: suggestedMain.path, role: .vlmModel)
+                        hubVM.applyModel(path: suggestedMain.path, role: .vlmModel, architecture: model.vlmArchitecture)
                     }
                 }
                 if let suggestedMain, let suggestedProjection {
                     Button(includeMainFilename || includeProjectionFilename
                            ? "Use as VLM Model + Projection — \(fileDisplayName(suggestedMain)) + \(fileDisplayName(suggestedProjection))"
                            : "Use as VLM Model + Projection") {
-                        hubVM.applyModel(path: suggestedMain.path, role: .vlmModel)
+                        hubVM.applyModel(path: suggestedMain.path, role: .vlmModel, architecture: model.vlmArchitecture)
                         hubVM.applyModel(path: suggestedProjection.path, role: .vlmProjection)
                     }
                 } else if let suggestedProjection {
@@ -1325,7 +1325,7 @@ struct ModelHubView: View {
                         hubVM.applyModel(path: file.path, role: .chatModel)
                     }
                     Button(useAsLabel(role: .vlmModel, file: file, includeFilename: true)) {
-                        hubVM.applyModel(path: file.path, role: .vlmModel)
+                        hubVM.applyModel(path: file.path, role: .vlmModel, architecture: model.vlmArchitecture)
                     }
                     Button(useAsLabel(role: .summarizer, file: file, includeFilename: true)) {
                         hubVM.applyModel(path: file.path, role: .summarizer)

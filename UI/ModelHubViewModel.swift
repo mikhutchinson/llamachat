@@ -866,7 +866,7 @@ final class ModelHubViewModel {
 
     // MARK: - "Use as" Wiring
 
-    func applyModel(path: String, role: ModelRole) {
+    func applyModel(path: String, role: ModelRole, architecture: String? = nil) {
         let key: String
         switch role {
         case .chatModel: key = SettingsKeys.modelPath
@@ -875,6 +875,16 @@ final class ModelHubViewModel {
         case .summarizer: key = SettingsKeys.summarizerModelPath
         }
         UserDefaults.standard.set(path, forKey: key)
+        
+        if role == .vlmModel {
+            if let arch = architecture, !arch.isEmpty {
+                UserDefaults.standard.set(arch, forKey: SettingsKeys.vlmArchitecture)
+                logger.info("Saved VLM architecture: \(arch, privacy: .public)")
+            } else {
+                UserDefaults.standard.removeObject(forKey: SettingsKeys.vlmArchitecture)
+            }
+        }
+        
         logger.info("Applied model: \(path, privacy: .public) as \(role.rawValue, privacy: .public)")
         onModelApplied?()
     }

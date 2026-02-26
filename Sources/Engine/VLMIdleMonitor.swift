@@ -14,6 +14,7 @@ public actor VLMIdleMonitor {
     private var workerIndex: Int = 0
     private var modelPath: String = ""
     private var clipPath: String = ""
+    private var vlmArchitecture: String?
     private var contextSize: Int = 2048
     private var nGpuLayers: Int = -1
     private var idleTimeoutSecs: TimeInterval = 300
@@ -41,6 +42,7 @@ public actor VLMIdleMonitor {
         workerIndex: Int,
         modelPath: String,
         clipPath: String,
+        vlmArchitecture: String? = nil,
         contextSize: Int = 2048,
         nGpuLayers: Int = -1,
         idleTimeoutSecs: TimeInterval = 300
@@ -50,6 +52,7 @@ public actor VLMIdleMonitor {
         self.workerIndex = workerIndex
         self.modelPath = modelPath
         self.clipPath = clipPath
+        self.vlmArchitecture = vlmArchitecture
         self.contextSize = contextSize
         self.nGpuLayers = nGpuLayers
         self.idleTimeoutSecs = idleTimeoutSecs
@@ -91,6 +94,7 @@ public actor VLMIdleMonitor {
             let result = try await VLMKernel.load(
                 pool: pool, workerIndex: workerIndex, kernelHandle: handle,
                 modelPath: modelPath, clipPath: clipPath,
+                vlmArchitecture: vlmArchitecture,
                 contextSize: contextSize, nGpuLayers: nGpuLayers
             )
 

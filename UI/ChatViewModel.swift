@@ -1090,6 +1090,9 @@ class ChatViewModel: ObservableObject {
         let ud = UserDefaults.standard
         let vlmModel = ud.string(forKey: SettingsKeys.vlmModelPath) ?? ""
         let vlmClip = ud.string(forKey: SettingsKeys.vlmClipPath) ?? ""
+        let vlmArchRaw = ud.string(forKey: SettingsKeys.vlmArchitecture)
+        let vlmArch = (vlmArchRaw?.isEmpty == false) ? vlmArchRaw : nil
+        
         let idleTimeout = ud.object(forKey: SettingsKeys.vlmIdleTimeoutSecs) != nil
             ? TimeInterval(ud.integer(forKey: SettingsKeys.vlmIdleTimeoutSecs))
             : TimeInterval(SettingsDefaults.vlmIdleTimeoutSecs)
@@ -1108,6 +1111,7 @@ class ChatViewModel: ObservableObject {
                 workerIndex: workerIdx,
                 modelPath: vlmModel,
                 clipPath: vlmClip,
+                vlmArchitecture: vlmArch,
                 contextSize: 2048,
                 nGpuLayers: config.nGpuLayers,
                 idleTimeoutSecs: idleTimeout

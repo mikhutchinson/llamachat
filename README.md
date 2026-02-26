@@ -76,6 +76,20 @@ python3 -m venv .venv
 ```
 No rebuild needed — restart the app and document extraction will work. See `BUGFIX.md` (BUG-007) for details.
 
+**Clean Reinstall (App Won't Launch / Stale Cache)**
+
+If you are encountering persistent crashes or need to completely wipe the build cache and reinstall the app:
+```bash
+rm -rf .build
+sudo rm -rf "/Applications/Llama Chat.app"
+
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_URL=https://github.com/mikhutchinson/swiftpython-commercial.git
+export SWIFTPYTHON_COMMERCIAL_PACKAGE_VERSION=0.1.6
+./scripts/build-app-bundle.sh
+
+sudo cp -R "build/Llama Chat.app" /Applications/
+```
+
 ## Usage
 
 1. Launch Llama Chat
